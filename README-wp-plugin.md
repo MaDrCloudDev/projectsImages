@@ -1,4 +1,5 @@
 # Simple Conditional Visibility
+
 Block Visibility Control Using CSS Class Names.
 
 ```
@@ -81,13 +82,10 @@ Add one or more of these class names to a block:
 
 - Show only when current content status matches (publish, draft, etc.).
 
-`cvis-view:front-page,archive`
+`cvis-view:pricing`
 
-- Show only on specific request/page views.
-
-`cvis-front-page` / `cvis-home` / `cvis-singular` / `cvis-archive` / `cvis-search` / `cvis-404`
-
-- Shortcut class names for common page views.
+- Show only on the page route/slug or page ID you provide.
+- Examples: `cvis-view:pricing`, `cvis-view:account/billing`, `cvis-view:42`.
 
 `cvis-date-after:2026-03-01`
 
@@ -149,6 +147,9 @@ Premium audience group only:
 
 Campaign URL only:
 `cvis-query:utm=summer`
+
+Specific page route only:
+`cvis-view:pricing`
 
 Premium plan targeting:
 `cvis-if:plan=pro`
