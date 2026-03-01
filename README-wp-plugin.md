@@ -1,134 +1,144 @@
 # Simple Conditional Visibility
+Contributors:      Simple Conditional Visibility Contributors
+Tags:              blocks, visibility, conditional content
+Requires at least: 6.2
+Tested up to:      6.8
+Requires PHP:      7.4
+Stable tag:        0.2.0
+License:           GPL-2.0-or-later
+License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
 Block Visibility Control Using CSS Class Names.
 
-This plugin uses fields WordPress already has:
-- block **Additional CSS Classes**
-- premium add-on user profile audience labels (admin-managed)
-- query params (optional, for `cvis-query:*`)
-
-No extra condition-builder UI is required.
-
 ## Description
 
-Simple Conditional Visibility lets you show or hide any block using short `cvis-*` classes.
+Simple Conditional Visibility lets you show or hide blocks by adding simple `cvis-*` class names in each block's **Advanced > Additional CSS Classes** field.
 
-It is built to be:
-- simple for non-technical users
-- secure (server-side rendering decisions)
-- flexible for advanced targeting
+It works server-side (secure): if a block should be hidden, it is removed before HTML is sent to the browser.
+For user-dependent rules, the plugin automatically applies strict no-cache headers.
 
-## Create Conditional Blocks in Seconds
+## Free vs Premium
 
-It takes 3 steps:
-1. Add or select a block in the editor.
-2. Add a `cvis-*` class in **Advanced > Additional CSS Classes** (space-separated preferred; commas are tolerated).
-3. Save and view the page.
+Free plugin includes:
+- all core visibility rules listed in "Free Rules" below
 
-## Packed With Features
+Premium add-on includes:
+- audience label targeting (`cvis-audience:*`, `cvis-not-audience:*`)
+- user profile field to manage audience labels
+- custom key/value targeting rules (`cvis-if:*`, `cvis-not:*`)
+- custom user attributes (for those premium key/value rules)
 
-- Hide a block globally: `cvis-hide`
-- Cache hardening marker: `cvis-secure`
-- Logged-in / logged-out targeting
-- Device targeting (mobile/desktop)
-- Role targeting
-- Date window targeting
-- Query-string targeting
-- Premium add-on audience targeting (`cvis-audience:*`)
-- Premium add-on K/V targeting (`cvis-if:key=value`, `cvis-not:key=value`)
+If premium is not active, `cvis-audience:*`, `cvis-not-audience:*`, `cvis-if:*`, and `cvis-not:*` are ignored.
 
-## Authoring Model
+## Free Rules (Built-In)
 
-Use each input for one clear purpose:
+Add one or more of these class names to a block:
 
-- **Additional CSS Classes**: rule definitions (`cvis-*`)
-- **Premium Add-ons/Extensions**: audience labels and custom context keys
+`cvis-hide`
+- Always hide this block from site visitors.
 
-Important:
-- For custom K/V access rules, use extension-provided context values.
-- Do not rely on block HTML Anchor/title as condition inputs.
+`cvis-secure`
+- Optional force marker for strict no-cache headers.
+- Also hides editor preview for blocked content.
 
-## Core Rule Examples
+`cvis-logged-in`
+- Show this block only to logged-in users.
 
-- `cvis-logged-in`
-- `cvis-logged-out`
-- `cvis-role:administrator`
-- `cvis-date-after:2026-03-01`
-- `cvis-date-before:2026-03-31`
-- `cvis-query:utm=summer`
+`cvis-logged-out`
+- Show this block only to logged-out visitors.
 
-## Security Model
+`cvis-mobile`
+- Show this block only on mobile devices.
 
-- Visibility is evaluated server-side during `render_block`.
-- Hidden blocks are removed from output (not just hidden with CSS).
-- Strict no-cache is auto-applied for user-dependent rules (logged-in, role/cap, audience, cvis-if/cvis-not).
-- `cvis-secure` is an optional force marker and also suppresses editor hidden preview.
+`cvis-desktop`
+- Show this block only on desktop devices.
 
-## Caching Caveat (Important)
+`cvis-role:administrator`
+- Show only to users with one of the listed WordPress roles.
+- You can list multiple roles with commas: `cvis-role:administrator,editor`.
 
-For auth/query/device-sensitive pages, cache layers must vary correctly or bypass cache.
+`cvis-cap:manage_options`
+- Show only to users who have a specific WordPress capability.
+- `manage_options` is usually admins only.
 
-If not configured, a cached privileged response can be served to the wrong user.
+`cvis-post-type:post,page`
+- Show only on specific content types (post/page/custom type).
+
+`cvis-post-status:publish`
+- Show only when current content status matches (publish, draft, etc.).
+
+`cvis-view:front-page,archive`
+- Show only on specific request/page views.
+
+`cvis-front-page` / `cvis-home` / `cvis-singular` / `cvis-archive` / `cvis-search` / `cvis-404`
+- Shortcut class names for common page views.
+
+`cvis-date-after:2026-03-01`
+- Show only after this date/time.
+
+`cvis-date-before:2026-03-31`
+- Show only before this date/time.
+
+`cvis-query:utm=summer`
+- Show only when the URL query param matches.
+
+## Premium Rules
+
+These require the premium add-on to be active:
+
+`cvis-if:key=value`
+- Show only when a premium context value matches.
+
+`cvis-not:key=value`
+- Hide when a premium context value matches.
+
+`cvis-audience:group-a`
+- Show only for users whose profile has audience label `group-a`.
+
+`cvis-not-audience:group-a`
+- Hide for users whose profile has audience label `group-a`.
+
+Premium context keys available by default:
+- `audience`, `audiences`
+- `user_id`
+- `logged_in` (`1` or `0`)
+
+Add-ons can add more keys via `cvis_context_vars`.
 
 ## Installation
 
-### WordPress install (standard)
+1. Upload plugin files to `/wp-content/plugins/simple-conditional-visibility`, or install from Plugins screen.
+2. Activate the plugin.
+3. Add `cvis-*` classes in block **Advanced > Additional CSS Classes**.
+4. Optional: open **Tools > Simple Conditional Visibility Rules** for copy/paste examples.
 
-1. Copy plugin files into `/wp-content/plugins/simple-conditional-visibility/`.
-2. Activate the plugin in WordPress.
-3. Add `cvis-*` classes to blocks.
+## Quick Examples
 
-### Local development from this repo
+Logged-in only:
+`cvis-logged-in`
 
-```bash
-cd plugin-source-code
-npm run verify
-```
+Admin only:
+`cvis-role:administrator`
 
-`npm run verify` does:
-- PHP lint
-- build
-- sync to local `wp-content/plugins/simple-conditional-visibility`
-- sync integrity verification (host + container, when Docker WordPress is running)
+Premium audience group only:
+`cvis-audience:group-a`
 
-## FAQ
+Campaign URL only:
+`cvis-query:utm=summer`
 
-### Does this work with any block?
+Premium plan targeting:
+`cvis-if:plan=pro`
 
-Yes for class-based rules, because it uses the block wrapper output in `render_block`.
+## Security notes
+- This plugin hides content server-side (not CSS-only hiding).
+- The plugin auto-applies strict no-cache for user-dependent rules.
+- Use `cvis-secure` when you want to force strict no-cache even without user-dependent rules.
+- Caches/CDNs must still be configured correctly for personalized pages.
 
-### Is visibility controlled with CSS?
+## Changelog
 
-No. CSS is not the security boundary here.
-Visibility decisions are made server-side before final HTML output.
-
-### Can non-admin users edit audience data?
-
-With premium enabled, audience labels are restricted to user-management capability (`promote_users` by default).
-
-### How do I create custom conditions like plan tiers?
-
-Use the premium add-on, then use `cvis-if:key=value` with values from:
-- premium context providers
-- `cvis_context_vars` filter
-
-### Can I use HTML Anchor and title normally?
-
-Yes. They are no longer needed for Simple Conditional Visibility rule inputs.
-Use them for their normal block/HTML purpose.
-
-## Project Docs
-
-- Plugin user readme: [plugin-source-code/readme.txt](plugin-source-code/readme.txt)
-- Architecture: [ARCHITECTURE.md](ARCHITECTURE.md)
-- Engineering decisions: [CHANGELOG-ENGINEERING.md](CHANGELOG-ENGINEERING.md)
-- Active plan: [PLAN.md](PLAN.md)
-- Freemium release plan: [FREEMIUM-PLAN.md](FREEMIUM-PLAN.md)
-- Premium add-on starter: [premium-addon-starter/README.md](premium-addon-starter/README.md)
-- Cache deployment playbook: [CACHE-GUIDANCE.md](CACHE-GUIDANCE.md)
-- WP.org compliance checklist (internal): [WPORG-GUIDELINES-CHECKLIST.md](WPORG-GUIDELINES-CHECKLIST.md)
-- Agent handoff guide: [AGENTS.md](AGENTS.md)
-
-## License
-
-GPL-2.0-or-later
+### 0.2.0
+* Replaced brittle parser with deterministic condition evaluation.
+* Made class-based `cvis-*` rules the primary documented workflow.
+* Added support for spaced class syntax like `cvis-cap: manage_options`.
+* Added freemium-ready feature flags (`cvis_feature_flags`) for extension-enabled context keys.
